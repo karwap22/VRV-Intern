@@ -56,7 +56,7 @@ for line in fileinput.input(files=filename):
     stringAdded.pop(len(stringAdded)-1)
     fileContent.append(stringAdded)
 
-fileContent
+# fileContent
 
 
 # %% [markdown]
@@ -125,51 +125,42 @@ def getSuspiciousActivity(fileContent:list,threshold=10):
     print("IP Address","\t", "Failed Login Attempts")
     for i in newIpFreq.keys():
         print(i,"\t",newIpFreq[i])
-    
+    print("")
     return newIpFreq
 
 
 IpFreq = getSuspiciousActivity(fileContent)
 
 # %% [markdown]
-# # Making CSV File:
+# # Output a CSV File:
 
 # %%
-max_rows = max(len(reqIPfreq), len(urlFreq), len(IpFreq))
-
-requests_per_ip_list = list(reqIPfreq.items())
-most_accessed_endpoint_list = list(urlFreq.items())
-suspicious_activity_list = list(IpFreq.items())
-
-while len(requests_per_ip_list) < max_rows:
-    requests_per_ip_list.append(("-", "-"))
-while len(most_accessed_endpoint_list) < max_rows:
-    most_accessed_endpoint_list.append(("-", "-"))
-while len(suspicious_activity_list) < max_rows:
-    suspicious_activity_list.append(("-", "-"))
-
 output_file = "log_analysis_results.csv"
 
 with open(output_file, mode="w", newline="") as file:
     writer = csv.writer(file)
     
-    writer.writerow([
-        "IP Address (Requests)", "Request Count",
-        "Endpoint", "Access Count",
-        "IP Address (Suspicious)", "Failed Login Count"
-    ])
+    writer.writerow(["Requests per IP"])
+    writer.writerow(["IP Address", "Request Count"])
+    for ip, count in reqIPfreq.items():
+        writer.writerow([ip, count])
+    writer.writerow([])
     
-    for i in range(max_rows):
-        writer.writerow([
-            requests_per_ip_list[i][0], requests_per_ip_list[i][1],
-            most_accessed_endpoint_list[i][0], most_accessed_endpoint_list[i][1],
-            suspicious_activity_list[i][0], suspicious_activity_list[i][1]
-        ])
+    writer.writerow(["Most Accessed Endpoint"])
+    writer.writerow(["Endpoint", "Access Count"])
+    for endpoint, count in urlFreq.items():
+        writer.writerow([endpoint, count])
+    writer.writerow([])
+    
+    writer.writerow(["Suspicious Activity"])
+    writer.writerow(["IP Address", "Failed Login Count"])
+    for ip, count in IpFreq.items():
+        writer.writerow([ip, count])
 
 
 # %%
 df = pd.read_csv(output_file)
 
-print("\n",df)
+# print(df)
 
 
